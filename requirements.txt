@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+requests
+opencv-python-headless
+openai-whisper
+torch
+transformers
+yt-dlp
+mediapipe
+torch
+torchvision
+torchaudio
+opencv-python-headless
+transformers[torch]
