@@ -1,49 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity, Brain, Users, TrendingUp, Eye, Mic, BookOpen, ChevronDown, ChevronUp, Video, Zap, Star, MessageSquare, Trash2 } from 'lucide-react';
+import ReactPlayer from 'react-player/lazy';
 import api from '../axios';
 
 /* ─────────────────────────────────────────
    Video Embed Helper
 ───────────────────────────────────────── */
-function VideoEmbed({ url }) {
+function VideoEmbed({ url, playerRef }) {
   if (!url) return null;
   
-  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-  if (ytMatch) {
-    const videoId = ytMatch[1];
-    return (
-      <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <iframe
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-          src={`https://www.youtube.com/embed/${videoId}`}
-          title="YouTube video player"
-          frameBorder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        ></iframe>
-      </div>
-    );
-  }
-  
-  if (url.endsWith('.mp4') || url.endsWith('.webm')) {
-    return (
-      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <video controls style={{ width: '100%', display: 'block' }}>
-          <source src={url} />
-        </video>
-      </div>
-    );
-  }
-  
   return (
-    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.2)', textAlign: 'center' }}>
-      <Video size={32} color="rgba(255,255,255,0.4)" style={{ marginBottom: '0.5rem' }} />
-      <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>External Video Link</div>
-      <a href={url} target="_blank" rel="noopener noreferrer" style={{
-        padding: '0.5rem 1rem', background: 'rgba(124,58,237,0.2)', color: '#a78bfa',
-        borderRadius: '6px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600
-      }}>Open Original Video</a>
+    <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <ReactPlayer
+        ref={playerRef}
+        url={url}
+        width="100%"
+        height="100%"
+        style={{ position: 'absolute', top: 0, left: 0 }}
+        controls={true}
+        config={{
+          youtube: {
+            playerVars: { showinfo: 1 }
+          }
+        }}
+      />
     </div>
   );
 }
@@ -192,19 +173,43 @@ function CoachingSection({ feedback }) {
 /* ─────────────────────────────────────────
    Timeline
 ───────────────────────────────────────── */
-function Timeline({ segments }) {
+function Timeline({ segments, onSeek }) {
+  // Helper to parse 'M:SS' or 'H:MM:SS' into seconds
+  const parseTime = (timeStr) => {
+    const parts = timeStr.split(':').map(Number);
+    if (parts.length === 2) return parts[0] * 60 + parts[1];
+    if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    return 0;
+  };
+
   return (
     <div style={{ position: 'relative', paddingLeft: '1.5rem' }}>
       <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '2px', background: 'linear-gradient(to bottom, #7c3aed, #6366f1)' }} />
       {segments.map((seg, i) => (
-        <div key={i} style={{ position: 'relative', marginBottom: '1rem' }}>
+        <div 
+          key={i} 
+          onClick={() => onSeek && onSeek(parseTime(seg.start))}
+          style={{ position: 'relative', marginBottom: '1rem', cursor: onSeek ? 'pointer' : 'default' }}
+        >
           <div style={{
             position: 'absolute', left: '-1.9rem', top: '0.2rem',
             width: '10px', height: '10px', borderRadius: '50%',
             background: '#7c3aed', border: '2px solid #1e1e3f',
             boxShadow: '0 0 6px #7c3aed'
           }} />
-          <div style={{ background: 'rgba(255,255,255,0.025)', borderRadius: '10px', padding: '0.75rem 1rem' }}>
+          <div 
+            style={{ background: 'rgba(255,255,255,0.025)', borderRadius: '10px', padding: '0.75rem 1rem', border: '1px solid transparent', transition: 'all 0.2s ease' }}
+            onMouseEnter={(e) => {
+              if (onSeek) {
+                e.currentTarget.style.borderColor = 'rgba(124,58,237,0.6)';
+                e.currentTarget.style.background = 'rgba(124,58,237,0.1)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'transparent';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.025)';
+            }}
+          >
             <span style={{ fontWeight: 700, color: '#a78bfa', fontSize: '0.78rem', marginRight: '0.75rem' }}>
               [{seg.start} – {seg.end}]
             </span>
@@ -272,7 +277,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedEval, setSelectedEval] = useState(null);
+  const playerRef = useRef(null);
   const navigate = useNavigate();
+
+  const handleSeek = (seconds) => {
+    if (playerRef.current) {
+      playerRef.current.seekTo(seconds, 'seconds');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -444,7 +457,7 @@ export default function Dashboard() {
               {selectedEval?.video_url && (
                 <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', marginTop: '-0.5rem' }}>
                   <h3 style={{ margin: '0 0 1rem', fontSize: '0.95rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Source Video</h3>
-                  <VideoEmbed url={selectedEval.video_url} />
+                  <VideoEmbed url={selectedEval.video_url} playerRef={playerRef} />
                 </div>
               )}
             </div>
@@ -516,7 +529,7 @@ export default function Dashboard() {
               <h2 style={{ margin: '0 0 1.5rem', fontSize: '1.1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
                 <Activity size={20} color="#6366f1" /> Transcript Timeline
               </h2>
-              <Timeline segments={timeline} />
+              <Timeline segments={timeline} onSeek={handleSeek} />
             </div>
           )}
         </div>
