@@ -409,10 +409,22 @@ export default function Dashboard() {
                   <span style={{ fontSize: '2rem' }}>⚠️</span>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <h2 style={{ margin: '0 0 0.5rem', color: '#f87171', fontSize: '1.3rem', fontWeight: 800 }}>Video Rejected — Not a Teaching Video</h2>
-                  <p style={{ margin: '0 0 1rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
-                    {selectedEval ? new Date(selectedEval.created_at).toLocaleString() : ''}
-                  </p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h2 style={{ margin: '0 0 0.5rem', color: '#f87171', fontSize: '1.3rem', fontWeight: 800 }}>Video Rejected — Not a Teaching Video</h2>
+                      <p style={{ margin: '0 0 1rem', color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>
+                        {selectedEval ? new Date(selectedEval.created_at).toLocaleString() : ''}
+                      </p>
+                    </div>
+                    {selectedEval && (
+                      <button onClick={() => handleDelete(selectedEval.id)} style={{
+                        background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)',
+                        padding: '0.5rem 0.75rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 600
+                      }}>
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    )}
+                  </div>
                   <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '10px', padding: '1rem' }}>
                     <pre style={{ whiteSpace: 'pre-wrap', margin: 0, fontFamily: 'inherit', color: 'rgba(255,255,255,0.75)', fontSize: '0.88rem', lineHeight: 1.7 }}>
                       {ai?.summary?.replace('⚠️ NOT A TEACHING VIDEO\n\n', '') || 'This video was flagged as non-educational content.'}
