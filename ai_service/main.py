@@ -322,15 +322,36 @@ def analyze_video_task(request_data: VideoAnalysisRequest):
         }
 
     except Exception as e:
-        print(f"ML Processing failed, falling back to mocks. Error: {e}")
+        print(f"ML Processing failed. Pushing error to frontend. Error: {e}")
         import traceback
         traceback.print_exc()
+        
         # Cleanup temp file if it exists
         if video_file and os.path.exists(video_file):
             try:
                 os.remove(video_file)
             except Exception:
                 pass
+                
+        # Push the error to the frontend instead of fake mock scores
+        error_msg = str(e)
+        if "confirm you" in error_msg.lower() or "youtube" in error_msg.lower():
+            friendly_error = f"YouTube blocked the download (Bot Protection). Please use a direct .mp4 link or Google Drive link instead.\n\nTechnical details: {error_msg}"
+        else:
+            friendly_error = f"An unexpected error occurred during AI analysis.\n\nTechnical details: {error_msg}"
+            
+        rejection_result["ai_feedback"]["summary"] = f"⚠️ ANALYSIS FAILED\n\n{friendly_error}"
+        rejection_result["student_attention_score"] = 0
+        rejection_result["explanation_quality_score"] = 0
+        rejection_result["overall_quality_index"] = 0
+        
+        try:
+            requests.post(LARAVEL_API_URL, json=rejection_result)
+            print("Pushed error state to Laravel.")
+        except Exception as push_err:
+            print(f"Failed to push error state to Laravel: {push_err}")
+        
+        return
 
     try:
         print("Analysis complete. Pushing results to Laravel Backend...")
