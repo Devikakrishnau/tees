@@ -15,8 +15,9 @@ Route::post('/login', function (Request $request) {
         'password' => ['required'],
     ]);
 
-    if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
-        $user = \Illuminate\Support\Facades\Auth::user();
+    $user = \App\Models\User::where('email', $credentials['email'])->first();
+
+    if ($user && \Illuminate\Support\Facades\Hash::check($credentials['password'], $user->password)) {
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['token' => $token, 'role' => $user->roles->pluck('name')]);
     }
