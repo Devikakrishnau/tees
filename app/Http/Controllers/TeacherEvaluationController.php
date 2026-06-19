@@ -118,7 +118,7 @@ class TeacherEvaluationController extends Controller
 
         // Send request to Python AI Microservice
         try {
-            $response = \Illuminate\Support\Facades\Http::post('http://127.0.0.1:8000/analyze-video', [
+            $response = \Illuminate\Support\Facades\Http::post('http://ai_service:8000/analyze-video', [
                 'teacher_id' => Auth::id(),
                 'class_id' => $request->class_id,
                 'video_url' => $request->video_url
