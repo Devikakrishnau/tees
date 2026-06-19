@@ -30,6 +30,9 @@ function VideoEmbed({ url, playerRef }) {
       </div>
     );
   }
+
+  // Fix for Vite CommonJS import bug where default export is wrapped in an object
+  const PlayerComponent = ReactPlayer.default || ReactPlayer;
   
   return (
     <div>
@@ -37,7 +40,7 @@ function VideoEmbed({ url, playerRef }) {
         URL: <a href={cleanUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#a78bfa' }}>{cleanUrl}</a>
       </div>
       <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-        <ReactPlayer
+        <PlayerComponent
           ref={playerRef}
           url={cleanUrl}
           width="100%"
