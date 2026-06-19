@@ -27,7 +27,7 @@ services:
     container_name: tees-webserver
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
       - .:/var/www
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
@@ -44,7 +44,7 @@ services:
       MYSQL_USER: ${DB_USERNAME:-tees_user}
       MYSQL_PASSWORD: ${DB_PASSWORD:-password}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - dbdata:/var/lib/mysql
 
