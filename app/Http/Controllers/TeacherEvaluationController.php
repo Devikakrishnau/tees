@@ -143,4 +143,23 @@ class TeacherEvaluationController extends Controller
             ], 503);
         }
     }
+
+    /**
+     * Delete specific evaluation
+     */
+    public function deleteEvaluation($id)
+    {
+        $evaluation = TeacherEvaluation::findOrFail($id);
+        
+        if (Auth::id() !== $evaluation->teacher_id && !Auth::user()->hasAnyRole(['Super Admin'])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $evaluation->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Evaluation deleted successfully'
+        ]);
+    }
 }

@@ -37,6 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/evaluations/report/{id}', [\App\Http\Controllers\TeacherEvaluationController::class, 'getWeeklyReport']);
         Route::get('/evaluations/latest', [\App\Http\Controllers\TeacherEvaluationController::class, 'latestEvaluation']);
         Route::post('/evaluations/analyze', [\App\Http\Controllers\TeacherEvaluationController::class, 'triggerAnalysis']);
+        Route::delete('/evaluations/{id}', [\App\Http\Controllers\TeacherEvaluationController::class, 'deleteEvaluation']);
     });
 });
 

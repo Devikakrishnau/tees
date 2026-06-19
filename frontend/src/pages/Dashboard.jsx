@@ -1,7 +1,52 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Brain, Users, TrendingUp, Eye, Mic, BookOpen, ChevronDown, ChevronUp, Video, Zap, Star, MessageSquare } from 'lucide-react';
+import { Activity, Brain, Users, TrendingUp, Eye, Mic, BookOpen, ChevronDown, ChevronUp, Video, Zap, Star, MessageSquare, Trash2 } from 'lucide-react';
 import api from '../axios';
+
+/* ─────────────────────────────────────────
+   Video Embed Helper
+───────────────────────────────────────── */
+function VideoEmbed({ url }) {
+  if (!url) return null;
+  
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+  if (ytMatch) {
+    const videoId = ytMatch[1];
+    return (
+      <div style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <iframe
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+          src={`https://www.youtube.com/embed/${videoId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      </div>
+    );
+  }
+  
+  if (url.endsWith('.mp4') || url.endsWith('.webm')) {
+    return (
+      <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <video controls style={{ width: '100%', display: 'block' }}>
+          <source src={url} />
+        </video>
+      </div>
+    );
+  }
+  
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.2)', textAlign: 'center' }}>
+      <Video size={32} color="rgba(255,255,255,0.4)" style={{ marginBottom: '0.5rem' }} />
+      <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>External Video Link</div>
+      <a href={url} target="_blank" rel="noopener noreferrer" style={{
+        padding: '0.5rem 1rem', background: 'rgba(124,58,237,0.2)', color: '#a78bfa',
+        borderRadius: '6px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600
+      }}>Open Original Video</a>
+    </div>
+  );
+}
 
 /* ─────────────────────────────────────────
    Animated Circular Score Ring
@@ -250,6 +295,26 @@ export default function Dashboard() {
     fetchDashboard();
   }, []);
 
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this assessment? This will permanently remove the AI analysis data. (The original video is not affected).")) {
+      return;
+    }
+    
+    try {
+      setLoading(true);
+      const response = await api.delete(`/teacher/evaluations/${id}`);
+      if (response.data.success) {
+        const updatedEvals = data.recent_evaluations.filter(e => e.id !== id);
+        setData({ ...data, recent_evaluations: updatedEvals });
+        setSelectedEval(updatedEvals.length > 0 ? updatedEvals[0] : null);
+      }
+    } catch (err) {
+      alert("Failed to delete assessment. Ensure you have the right permissions.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh', flexDirection: 'column', gap: '1rem' }}>
       <div style={{ width: 48, height: 48, border: '4px solid rgba(124,58,237,0.2)', borderTop: '4px solid #7c3aed', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
@@ -334,33 +399,54 @@ export default function Dashboard() {
             </div>
           ) : (
             /* Normal Score Hero */
-            <div className="glass-panel" style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', padding: '2rem 2.5rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(99,102,241,0.1))', border: '1px solid rgba(124,58,237,0.3)' }}>
-              <ScoreRing score={overallScore} size={130} stroke={12} color="#7c3aed" />
-              <div style={{ flex: 1 }}>
-                <h2 style={{ margin: '0 0 0.25rem', fontSize: '1.4rem', fontWeight: 800 }}>
-                  {selectedEval?.class_id ? `Class #${selectedEval.class_id}` : 'Latest Analysis'}
-                </h2>
-                <p style={{ margin: '0 0 1.25rem', color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem' }}>
-                  {selectedEval ? new Date(selectedEval.created_at).toLocaleString() : '—'}
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-                  {[
-                    { label: 'Engagement', val: attention, color: '#10b981', icon: Users },
-                    { label: 'Explanation', val: explanation, color: '#8b5cf6', icon: Brain },
-                    { label: 'Speaking', val: wpm, color: '#f59e0b', icon: Mic, unit: ' WPM', max: 200 },
-                  ].map(({ label, val, color, icon: Icon, unit = '', max = 100 }) => (
-                    <div key={label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '0.9rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
-                        <Icon size={14} color={color} />
-                        <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)' }}>{label}</span>
-                      </div>
-                      <span style={{ fontWeight: 800, fontSize: '1.3rem', color }}>
-                        {val.toFixed(0)}{unit}
-                      </span>
+            <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '2rem 2.5rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(99,102,241,0.1))', border: '1px solid rgba(124,58,237,0.3)' }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2.5rem' }}>
+                <ScoreRing score={overallScore} size={130} stroke={12} color="#7c3aed" />
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <h2 style={{ margin: '0 0 0.25rem', fontSize: '1.4rem', fontWeight: 800 }}>
+                        {selectedEval?.class_id ? `Class #${selectedEval.class_id}` : 'Latest Analysis'}
+                      </h2>
+                      <p style={{ margin: '0 0 1.25rem', color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem' }}>
+                        {selectedEval ? new Date(selectedEval.created_at).toLocaleString() : '—'}
+                      </p>
                     </div>
-                  ))}
+                    {selectedEval && (
+                      <button onClick={() => handleDelete(selectedEval.id)} style={{
+                        background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)',
+                        padding: '0.5rem 0.75rem', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.8rem', fontWeight: 600
+                      }}>
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+                    {[
+                      { label: 'Engagement', val: attention, color: '#10b981', icon: Users },
+                      { label: 'Explanation', val: explanation, color: '#8b5cf6', icon: Brain },
+                      { label: 'Speaking', val: wpm, color: '#f59e0b', icon: Mic, unit: ' WPM', max: 200 },
+                    ].map(({ label, val, color, icon: Icon, unit = '', max = 100 }) => (
+                      <div key={label} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '12px', padding: '0.9rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.5rem' }}>
+                          <Icon size={14} color={color} />
+                          <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)' }}>{label}</span>
+                        </div>
+                        <span style={{ fontWeight: 800, fontSize: '1.3rem', color }}>
+                          {val.toFixed(0)}{unit}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
+              
+              {selectedEval?.video_url && (
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.5rem', marginTop: '-0.5rem' }}>
+                  <h3 style={{ margin: '0 0 1rem', fontSize: '0.95rem', fontWeight: 600, color: 'rgba(255,255,255,0.8)' }}>Source Video</h3>
+                  <VideoEmbed url={selectedEval.video_url} />
+                </div>
+              )}
             </div>
           )}
 
