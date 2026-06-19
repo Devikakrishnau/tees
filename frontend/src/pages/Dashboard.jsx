@@ -256,9 +256,9 @@ function EvalList({ evals, activeId, onSelect }) {
               ) : (
                 <div style={{
                   fontWeight: 800, fontSize: '1.2rem',
-                  color: e.overall_quality_index >= 80 ? '#10b981' : e.overall_quality_index >= 60 ? '#f59e0b' : '#ef4444'
+                  color: (e.overall_quality_index || 0) >= 80 ? '#10b981' : (e.overall_quality_index || 0) >= 60 ? '#f59e0b' : '#ef4444'
                 }}>
-                  {e.overall_quality_index.toFixed(0)}
+                  {(e.overall_quality_index || 0).toFixed(0)}
                 </div>
               )}
             </div>
@@ -414,7 +414,7 @@ export default function Dashboard() {
             /* Normal Score Hero */
             <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '2rem', padding: '2rem 2.5rem', background: 'linear-gradient(135deg, rgba(124,58,237,0.18), rgba(99,102,241,0.1))', border: '1px solid rgba(124,58,237,0.3)' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '2.5rem' }}>
-                <ScoreRing score={overallScore} size={130} stroke={12} color="#7c3aed" />
+                <ScoreRing score={overallScore || 0} size={130} stroke={12} color="#7c3aed" />
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
@@ -446,7 +446,7 @@ export default function Dashboard() {
                           <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.45)' }}>{label}</span>
                         </div>
                         <span style={{ fontWeight: 800, fontSize: '1.3rem', color }}>
-                          {val.toFixed(0)}{unit}
+                          {(val || 0).toFixed(0)}{unit}
                         </span>
                       </div>
                     ))}
