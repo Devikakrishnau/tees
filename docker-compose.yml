@@ -21,8 +21,6 @@ services:
       - .:/var/www
     depends_on:
       - db
-    networks:
-      - tees-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -36,8 +34,6 @@ services:
       PMA_PASSWORD: ${DB_PASSWORD:-password}
     depends_on:
       - db
-    networks:
-      - tees-network
 
   webserver:
     image: nginx:alpine
