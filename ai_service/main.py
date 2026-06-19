@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 app = FastAPI(title="TEES Advanced Multimodal AI Engine")
 
-LARAVEL_API_URL = "http://127.0.0.1:8080/api/ai/evaluations/store"
+LARAVEL_API_URL = os.environ.get("LARAVEL_API_URL", "http://127.0.0.1:8080/api/ai/evaluations/store")
 
 class VideoAnalysisRequest(BaseModel):
     teacher_id: int
