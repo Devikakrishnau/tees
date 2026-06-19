@@ -39,8 +39,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/evaluations/analyze', [\App\Http\Controllers\TeacherEvaluationController::class, 'triggerAnalysis']);
         Route::post('/evaluations/upload', [\App\Http\Controllers\TeacherEvaluationController::class, 'uploadVideoFile']);
         Route::delete('/evaluations/{id}', [\App\Http\Controllers\TeacherEvaluationController::class, 'deleteEvaluation']);
+        
+        // Live Streaming API
+        Route::post('/evaluations/live/start', [\App\Http\Controllers\LiveStreamController::class, 'startStream']);
+        Route::get('/evaluations/live/{streamKey}', [\App\Http\Controllers\LiveStreamController::class, 'getStreamData']);
     });
 });
+
+// Custom APK Ingest API (unauthenticated or token-based depending on implementation, keeping simple for now)
+Route::post('/stream/ingest', [\App\Http\Controllers\LiveStreamController::class, 'ingestChunk']);
 
 // Webhook/Endpoint for Python AI Service to push evaluation results
 Route::post('/ai/evaluations/store', [\App\Http\Controllers\TeacherEvaluationController::class, 'storeEvaluation']);

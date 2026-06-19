@@ -368,6 +368,87 @@ async def analyze_video(request: VideoAnalysisRequest, background_tasks: Backgro
     return {"message": "Multimodal analysis queued successfully", "video_url": request.video_url}
 
 
+class ChunkAnalysisRequest(BaseModel):
+    teacher_id: int
+    stream_key: str
+    chunk_index: int
+    video_url: str
+
+# Global models for fast chunk inference
+global_whisper_model = None
+
+@app.on_event("startup")
+def load_models_on_startup():
+    global global_whisper_model
+    try:
+        import whisper
+        print("Loading global Whisper model for real-time analysis...")
+        global_whisper_model = whisper.load_model("tiny")
+        print("Global model loaded successfully.")
+    except Exception as e:
+        print(f"Warning: Failed to load global models on startup: {e}")
+
+@app.post("/analyze-chunk")
+async def analyze_chunk(request: ChunkAnalysisRequest):
+    global global_whisper_model
+    print(f"Real-time processing chunk {request.chunk_index} for stream {request.stream_key}")
+    
+    # Download the chunk locally
+    try:
+        import urllib.request
+        import whisper
+        from feature_extractors import extract_visual_features, extract_audio_features
+        from models.content_scorer import get_content_features
+        from models.fusion_network import run_fusion_inference
+        
+        # Ensure model is loaded
+        if global_whisper_model is None:
+            global_whisper_model = whisper.load_model("tiny")
+            
+        chunk_file = f"temp_chunk_{request.stream_key}_{request.chunk_index}.mp4"
+        urllib.request.urlretrieve(request.video_url, chunk_file)
+        
+        # 1. Transcribe (Fast)
+        result = global_whisper_model.transcribe(chunk_file)
+        transcript = result["text"].strip()
+        
+        # 2. Visual Features
+        visual_features = extract_visual_features(chunk_file)
+        
+        # 3. Audio Features
+        # For a 5s chunk, duration is short
+        duration_sec = 5.0 
+        whisper_segments = result.get("segments", [])
+        audio_features = extract_audio_features(chunk_file, transcript, duration_sec, whisper_segments)
+        
+        # 4. Content Features
+        content_features = get_content_features(transcript)
+        
+        # 5. Fusion Network
+        fusion_results = run_fusion_inference(visual_features, audio_features, content_features)
+        
+        # Cleanup
+        if os.path.exists(chunk_file):
+            os.remove(chunk_file)
+            
+        return {
+            "success": True,
+            "student_attention_score": fusion_results['engagement_score'],
+            "explanation_quality_score": fusion_results['teaching_effectiveness_score'],
+            "speaking_speed_wpm": audio_features['wpm'],
+            "ai_feedback": {
+                "transcript": transcript,
+                "coaching": fusion_results['coaching']
+            }
+        }
+        
+    except Exception as e:
+        print(f"Chunk processing failed: {e}")
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
 @app.get("/health")
 def health_check():
     return {"status": "ok", "version": "2.0-multimodal"}

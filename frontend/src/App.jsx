@@ -6,6 +6,7 @@ import VideoUpload from './pages/VideoUpload';
 import AdminDashboard from './pages/AdminDashboard';
 import StudentDashboard from './pages/StudentDashboard';
 import WeeklyReport from './pages/WeeklyReport';
+import LiveAnalysis from './pages/LiveAnalysis';
 import './index.css';
 
 function App() {
@@ -60,6 +61,10 @@ function App() {
           <Route 
             path="/upload" 
             element={isAuthenticated && userRole !== 'Student' ? <VideoUpload /> : <Navigate to={userRole === 'Student' ? "/student" : "/login"} />} 
+          />
+          <Route 
+            path="/live/:streamKey" 
+            element={isAuthenticated && userRole !== 'Student' ? <LiveAnalysis /> : <Navigate to={userRole === 'Student' ? "/student" : "/login"} />} 
           />
           <Route 
             path="/admin" 

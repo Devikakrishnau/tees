@@ -13,8 +13,16 @@ export default function VideoUpload() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   
-  const navigate = useNavigate();
-  const fileInputRef = useRef(null);
+  const [liveStreamType, setLiveStreamType] = useState('youtube'); // 'youtube', 'custom'
+  const [streamKey, setStreamKey] = useState('');
+
+  // Generate a random stream key when Custom API is selected
+  const handleLiveStreamTypeChange = (type) => {
+    setLiveStreamType(type);
+    if (type === 'custom' && !streamKey) {
+      setStreamKey('sk_live_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +33,7 @@ export default function VideoUpload() {
     try {
       let response;
       
-      if (activeTab === 'url' || activeTab === 'live') {
+      if (activeTab === 'url' || (activeTab === 'live' && liveStreamType === 'youtube')) {
         const payloadUrl = activeTab === 'url' ? videoUrl : liveUrl;
         if (!payloadUrl) throw new Error("URL is required");
         
@@ -43,6 +51,17 @@ export default function VideoUpload() {
         response = await api.post('/teacher/evaluations/upload', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
+      } else if (activeTab === 'live' && liveStreamType === 'custom') {
+        // Initialize the custom live stream session
+        response = await api.post('/teacher/evaluations/live/start', {
+          stream_key: streamKey,
+          class_id: classId || null
+        });
+        
+        if (response.data.success) {
+          navigate(`/live/${streamKey}`);
+          return;
+        }
       }
 
       if (response.data.success) {
@@ -92,7 +111,7 @@ export default function VideoUpload() {
           </button>
           <button 
             type="button"
-            onClick={() => { setActiveTab('live'); setError(''); }}
+            onClick={() => { setActiveTab('live'); handleLiveStreamTypeChange(liveStreamType); setError(''); }}
             style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '8px', cursor: 'pointer', border: 'none', fontWeight: 600, transition: 'all 0.2s', background: activeTab === 'live' ? 'rgba(124,58,237,0.3)' : 'transparent', color: activeTab === 'live' ? '#fff' : 'rgba(255,255,255,0.5)' }}
           >
             <Radio size={18} /> Live Stream
@@ -149,13 +168,49 @@ export default function VideoUpload() {
 
             {activeTab === 'live' && (
               <div className="animate-fade-in">
-                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
-                  Live Stream Endpoint (YouTube Live, RTMP, etc) <span style={{ color: 'var(--danger)' }}>*</span>
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0 0.75rem' }}>
-                  <Radio size={20} color="var(--text-secondary)" />
-                  <input type="url" required placeholder="https://youtube.com/live/..." value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'transparent', border: 'none', color: 'white', outline: 'none' }} />
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="radio" name="streamType" checked={liveStreamType === 'youtube'} onChange={() => handleLiveStreamTypeChange('youtube')} />
+                    <span>YouTube / RTMP URL</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input type="radio" name="streamType" checked={liveStreamType === 'custom'} onChange={() => handleLiveStreamTypeChange('custom')} />
+                    <span>Custom APK (API/WebRTC)</span>
+                  </label>
                 </div>
+
+                {liveStreamType === 'youtube' ? (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>
+                      Live Stream Endpoint (YouTube Live, RTMP, etc) <span style={{ color: 'var(--danger)' }}>*</span>
+                    </label>
+                    <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '0 0.75rem' }}>
+                      <Radio size={20} color="var(--text-secondary)" />
+                      <input type="url" required placeholder="https://youtube.com/live/..." value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={{ width: '100%', padding: '0.75rem', background: 'transparent', border: 'none', color: 'white', outline: 'none' }} />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ background: 'rgba(124,58,237,0.1)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '8px', padding: '1.5rem' }}>
+                    <h4 style={{ margin: '0 0 1rem', color: '#a78bfa' }}>Custom APK Configuration</h4>
+                    <p style={{ margin: '0 0 1.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                      To analyze video from your custom app in real-time, configure your app to push WebRTC/video chunks to the following API endpoint using this unique stream key.
+                    </p>
+                    
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>API Ingest URL</label>
+                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '6px', fontFamily: 'monospace', color: '#10b981', wordBreak: 'break-all' }}>
+                        https://tees.bodhiplus.com/api/stream/ingest
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '0.25rem' }}>Stream Key</label>
+                      <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.75rem', borderRadius: '6px', fontFamily: 'monospace', color: '#f59e0b', fontSize: '1.1rem', letterSpacing: '1px' }}>
+                        {streamKey}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -172,7 +227,7 @@ export default function VideoUpload() {
                 Cancel
               </button>
               <button className="btn" type="submit" disabled={loading || (activeTab === 'upload' && !file)} style={{ flex: 2 }}>
-                {loading ? 'Submitting to AI...' : (activeTab === 'live' ? 'Monitor Live Stream' : 'Analyze Content')}
+                {loading ? 'Starting...' : (activeTab === 'live' ? 'Start Live Monitoring' : 'Analyze Content')}
               </button>
             </div>
           </form>
