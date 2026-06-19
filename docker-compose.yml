@@ -21,6 +21,23 @@ services:
       - .:/var/www
     depends_on:
       - db
+    networks:
+      - tees-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: tees-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${DB_USERNAME:-tees_user}
+      PMA_PASSWORD: ${DB_PASSWORD:-password}
+    depends_on:
+      - db
+    networks:
+      - tees-network
 
   webserver:
     image: nginx:alpine
