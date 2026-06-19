@@ -14,8 +14,8 @@ function VideoEmbed({ url, playerRef }) {
 
   const cleanUrl = url.trim();
 
-  // If ReactPlayer cannot play the URL (like Google Drive links), or if it failed to load, show a fallback card
-  if (error || !ReactPlayer.canPlay(cleanUrl) || cleanUrl.toLowerCase().includes('drive.google.com')) {
+  // If it's a Google Drive link, or if ReactPlayer failed to load, show a fallback card
+  if (error || cleanUrl.toLowerCase().includes('drive.google.com')) {
     return (
       <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.2)', textAlign: 'center' }}>
         <Video size={32} color="rgba(255,255,255,0.4)" style={{ marginBottom: '0.5rem' }} />
