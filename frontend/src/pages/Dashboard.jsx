@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Activity, Brain, Users, TrendingUp, Eye, Mic, BookOpen, ChevronDown, ChevronUp, Video, Zap, Star, MessageSquare, Trash2 } from 'lucide-react';
-import ReactPlayer from 'react-player/lazy';
+import ReactPlayer from 'react-player';
 import api from '../axios';
 
 /* ─────────────────────────────────────────
