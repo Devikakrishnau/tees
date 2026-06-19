@@ -143,6 +143,57 @@ class TeacherEvaluationController extends Controller
             ], 503);
         }
     }
+    /**
+     * Upload physical video file and Trigger AI Analysis
+     */
+    public function uploadVideoFile(Request $request)
+    {
+        $request->validate([
+            'video_file' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:512000', // 500MB max
+            'class_id' => 'nullable|integer',
+        ]);
+
+        if ($request->hasFile('video_file')) {
+            $file = $request->file('video_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            
+            // Store the file in public disk (storage/app/public/videos)
+            $path = $file->storeAs('videos', $filename, 'public');
+            
+            // Generate full public URL
+            $videoUrl = url('/storage/' . $path);
+
+            // Send request to Python AI Microservice
+            try {
+                $response = \Illuminate\Support\Facades\Http::post('http://ai_service:8000/analyze-video', [
+                    'teacher_id' => Auth::id(),
+                    'class_id' => $request->class_id,
+                    'video_url' => $videoUrl
+                ]);
+
+                if ($response->successful()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Video uploaded and analysis queued successfully',
+                        'video_url' => $videoUrl
+                    ]);
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to queue analysis on AI microservice'
+                ], 500);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'AI microservice is currently unreachable.'
+                ], 503);
+            }
+        }
+
+        return response()->json(['success' => false, 'message' => 'No file uploaded'], 400);
+    }
 
     /**
      * Delete specific evaluation
