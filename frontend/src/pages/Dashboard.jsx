@@ -8,37 +8,51 @@ import api from '../axios';
    Video Embed Helper
 ───────────────────────────────────────── */
 function VideoEmbed({ url, playerRef }) {
+  const [error, setError] = useState(false);
+
   if (!url) return null;
 
-  // If ReactPlayer cannot play the URL (like Google Drive links), show a fallback card
-  if (!ReactPlayer.canPlay(url) || url.includes('drive.google.com')) {
+  // If ReactPlayer cannot play the URL (like Google Drive links), or if it failed to load, show a fallback card
+  if (error || !ReactPlayer.canPlay(url) || url.toLowerCase().includes('drive.google.com')) {
     return (
       <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.2)', textAlign: 'center' }}>
         <Video size={32} color="rgba(255,255,255,0.4)" style={{ marginBottom: '0.5rem' }} />
-        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>External Video Link</div>
+        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>
+          {error ? 'Video playback failed (Broken link or permission error)' : 'External Video Link'}
+        </div>
         <a href={url} target="_blank" rel="noopener noreferrer" style={{
           padding: '0.5rem 1rem', background: 'rgba(124,58,237,0.2)', color: '#a78bfa',
-          borderRadius: '6px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600
+          borderRadius: '6px', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600,
+          display: 'inline-block', wordBreak: 'break-all'
         }}>Open Original Video</a>
       </div>
     );
   }
   
   return (
-    <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
-      <ReactPlayer
-        ref={playerRef}
-        url={url}
-        width="100%"
-        height="100%"
-        style={{ position: 'absolute', top: 0, left: 0 }}
-        controls={true}
-        config={{
-          youtube: {
-            playerVars: { showinfo: 1 }
-          }
-        }}
-      />
+    <div>
+      <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: '0.5rem', wordBreak: 'break-all' }}>
+        URL: <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: '#a78bfa' }}>{url}</a>
+      </div>
+      <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <ReactPlayer
+          ref={playerRef}
+          url={url}
+          width="100%"
+          height="100%"
+          style={{ position: 'absolute', top: 0, left: 0 }}
+          controls={true}
+          onError={(e) => {
+            console.error('ReactPlayer playback error:', e);
+            setError(true);
+          }}
+          config={{
+            youtube: {
+              playerVars: { showinfo: 1 }
+            }
+          }}
+        />
+      </div>
     </div>
   );
 }
