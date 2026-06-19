@@ -77,6 +77,10 @@ export default function Login({ setAuth }) {
             {loading ? 'Authenticating...' : 'Sign In'}
           </button>
         </form>
+        
+        <div style={{ textAlign: 'center', marginTop: '2rem', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+          Developed by Devika Krishna
+        </div>
       </div>
     </div>
   );
