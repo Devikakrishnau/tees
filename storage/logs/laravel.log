@@ -768,3 +768,71 @@ Stack trace:
 #46 C:/wamp64/www/tees/artisan(16): Illuminate/Foundation/Application->handleCommand(Object(Symfony/Component/Console/Input/ArgvInput))
 #47 {main}
 "} 
+[2026-06-19 05:33:56] local.ERROR: syntax error, unexpected token "<<", expecting end of file {"exception":"[object] (ParseError(code: 0): syntax error, unexpected token \"<<\", expecting end of file at /Applications/MAMP/htdocs/tees/app/Providers/AppServiceProvider.php:6)
+[stacktrace]
+#0 /Applications/MAMP/htdocs/tees/vendor/composer/ClassLoader.php(427): {closure:Composer\\Autoload\\ClassLoader::initializeIncludeClosure():575}('/Applications/M...')
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass('App\\\\Providers\\\\A...')
+#2 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterProviders.php(52): class_exists('App\\\\Providers\\\\A...')
+#3 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterProviders.php(34): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->mergeAdditionalProviders(Object(Illuminate\\Foundation\\Application))
+#4 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(342): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(494): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(196): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 Command line code(1): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-06-19 05:33:56] local.ERROR: syntax error, unexpected token "<<", expecting end of file {"exception":"[object] (ParseError(code: 0): syntax error, unexpected token \"<<\", expecting end of file at /Applications/MAMP/htdocs/tees/app/Providers/AppServiceProvider.php:6)
+[stacktrace]
+#0 /Applications/MAMP/htdocs/tees/vendor/composer/ClassLoader.php(427): {closure:Composer\\Autoload\\ClassLoader::initializeIncludeClosure():575}('/Applications/M...')
+#1 [internal function]: Composer\\Autoload\\ClassLoader->loadClass('App\\\\Providers\\\\A...')
+#2 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterProviders.php(52): class_exists('App\\\\Providers\\\\A...')
+#3 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/RegisterProviders.php(34): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->mergeAdditionalProviders(Object(Illuminate\\Foundation\\Application))
+#4 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(342): Illuminate\\Foundation\\Bootstrap\\RegisterProviders->bootstrap(Object(Illuminate\\Foundation\\Application))
+#5 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(494): Illuminate\\Foundation\\Application->bootstrapWith(Array)
+#6 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(196): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#7 Command line code(1): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#8 {main}
+"} 
+[2026-06-19 05:33:56] local.ERROR: Uncaught ReflectionException: Class "translator" does not exist in /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php:1125
+Stack trace:
+#0 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(1125): ReflectionClass->__construct('translator')
+#1 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(936): Illuminate\Container\Container->build('translator')
+#2 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve('translator', Array, true)
+#3 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate\Foundation\Application->resolve('translator', Array)
+#4 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make('translator', Array)
+#5 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(138): Illuminate\Foundation\Application->make('translator', Array)
+#6 Command line code(1): app('translator')
+#7 {main}
+
+Next Illuminate\Contracts\Container\BindingResolutionException: Target class [translator] does not exist. in /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php:1127
+Stack trace:
+#0 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(936): Illuminate\Container\Container->build('translator')
+#1 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\Container\Container->resolve('translator', Array, true)
+#2 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate\Foundation\Application->resolve('translator', Array)
+#3 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\Container\Container->make('translator', Array)
+#4 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(138): Illuminate\Foundation\Application->make('translator', Array)
+#5 Command line code(1): app('translator')
+#6 {main}
+  thrown {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Uncaught ReflectionException: Class \"translator\" does not exist in /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php:1125
+Stack trace:
+#0 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(1125): ReflectionClass->__construct('translator')
+#1 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(936): Illuminate\\Container\\Container->build('translator')
+#2 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\\Container\\Container->resolve('translator', Array, true)
+#3 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate\\Foundation\\Application->resolve('translator', Array)
+#4 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\\Container\\Container->make('translator', Array)
+#5 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(138): Illuminate\\Foundation\\Application->make('translator', Array)
+#6 Command line code(1): app('translator')
+#7 {main}
+
+Next Illuminate\\Contracts\\Container\\BindingResolutionException: Target class [translator] does not exist. in /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php:1127
+Stack trace:
+#0 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(936): Illuminate\\Container\\Container->build('translator')
+#1 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1078): Illuminate\\Container\\Container->resolve('translator', Array, true)
+#2 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php(864): Illuminate\\Foundation\\Application->resolve('translator', Array)
+#3 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1058): Illuminate\\Container\\Container->make('translator', Array)
+#4 /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Foundation/helpers.php(138): Illuminate\\Foundation\\Application->make('translator', Array)
+#5 Command line code(1): app('translator')
+#6 {main}
+  thrown at /Applications/MAMP/htdocs/tees/vendor/laravel/framework/src/Illuminate/Container/Container.php:1127)
+[stacktrace]
+#0 {main}
+"} 

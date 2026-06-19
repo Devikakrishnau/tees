@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">tees-app</string>
+    <string name="title_activity_main">tees-app</string>
+    <string name="package_name">com.tees.app</string>
+    <string name="custom_url_scheme">com.tees.app</string>
+</resources>

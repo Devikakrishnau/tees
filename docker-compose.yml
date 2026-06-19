@@ -42,7 +42,7 @@ services:
 
   ai_service:
     build:
-      context: .
+      context: ./ai_service
       dockerfile: Dockerfile.python
     image: tees-ai
     container_name: tees-ai-service
@@ -52,7 +52,7 @@ services:
     environment:
       - LARAVEL_API_URL=http://app:80/api/ai/evaluations/store
     volumes:
-      - .:/app
+      - ./ai_service:/app
 
 volumes:
   dbdata:
