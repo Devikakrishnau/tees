@@ -12,3 +12,5 @@ torchvision
 torchaudio
 opencv-python-headless
 transformers[torch]
+aiortc
+aiohttp
